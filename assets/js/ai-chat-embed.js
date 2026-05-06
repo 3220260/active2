@@ -8,11 +8,16 @@
 
   widget.innerHTML = `
     <button class="synetelas-ai-chat-button" type="button" aria-label="Άνοιγμα AI βοηθού">
-      <span class="synetelas-ai-chat-icon">💬</span>
-      <span class="synetelas-ai-chat-text">AI Βοηθός</span>
+      <span class="synetelas-ai-chat-bubble">💬</span>
+      <span class="synetelas-ai-chat-label">
+        <strong>AI Βοηθός</strong>
+        <small>Ρώτησέ με εδώ</small>
+      </span>
     </button>
 
-    <section class="synetelas-ai-chat-panel" aria-hidden="true" aria-label="AI Βοηθός">
+    <div class="synetelas-ai-chat-backdrop" hidden></div>
+
+    <section class="synetelas-ai-chat-panel" aria-hidden="true" aria-label="AI Βοηθός Synetelas">
       <header class="synetelas-ai-chat-header">
         <div>
           <strong>Βοηθός Synetelas</strong>
@@ -34,15 +39,6 @@
         referrerpolicy="strict-origin-when-cross-origin"
         allow="clipboard-write"
       ></iframe>
-
-      <a
-        class="synetelas-ai-chat-open-new"
-        href="${CHAT_APP_URL}"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Άνοιγμα σε νέο παράθυρο
-      </a>
     </section>
   `;
 
@@ -50,6 +46,7 @@
 
   const openButton = widget.querySelector(".synetelas-ai-chat-button");
   const panel = widget.querySelector(".synetelas-ai-chat-panel");
+  const backdrop = widget.querySelector(".synetelas-ai-chat-backdrop");
   const closeButton = widget.querySelector(".synetelas-ai-chat-close");
   const refreshButton = widget.querySelector(".synetelas-ai-chat-refresh");
   const iframe = widget.querySelector(".synetelas-ai-chat-frame");
@@ -59,6 +56,8 @@
   function openChat() {
     panel.classList.add("is-open");
     panel.setAttribute("aria-hidden", "false");
+    backdrop.hidden = false;
+    document.body.classList.add("synetelas-ai-chat-open");
 
     if (!iframeLoaded) {
       iframe.src = iframe.dataset.src;
@@ -69,6 +68,8 @@
   function closeChat() {
     panel.classList.remove("is-open");
     panel.setAttribute("aria-hidden", "true");
+    backdrop.hidden = true;
+    document.body.classList.remove("synetelas-ai-chat-open");
   }
 
   function refreshChat() {
@@ -79,6 +80,7 @@
   openButton.addEventListener("click", openChat);
   closeButton.addEventListener("click", closeChat);
   refreshButton.addEventListener("click", refreshChat);
+  backdrop.addEventListener("click", closeChat);
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && panel.classList.contains("is-open")) {
