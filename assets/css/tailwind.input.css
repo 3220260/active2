@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@source "../../index.html";
+@source "../js/**/*.js";
+@source inline("hidden opacity-0 opacity-100 pointer-events-none overflow-hidden scroll-locked translate-y-0 translate-y-full md:translate-y-10 md:scale-95 md:scale-100 text-red-600 border-red-600 text-blue-600 border-blue-600 bg-white text-gray-500 hover:bg-gray-100 border-green-500 bg-green-50 fa-copy fa-regular fa-check fa-solid");

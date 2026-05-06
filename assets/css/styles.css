@@ -1,0 +1,334 @@
+/* --- 1. ΒΑΣΙΚΕΣ ΡΥΘΜΙΣΕΙΣ --- */
+:root { --primary: #0f2b5c; }
+body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1e293b; overflow-x: hidden; }
+h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+/* --- 2. PRELOADER ANIMATION --- */
+@keyframes float-logo {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
+body.loading { overflow: hidden; }
+body.overflow-hidden { overflow: hidden !important; overscroll-behavior: none; }
+
+/* --- 3. TEXT GRADIENT (ΚΙΝΟΥΜΕΝΟ ΧΡΩΜΑ) --- */
+.full-red-blue-gradient {
+    background: linear-gradient(135deg, #dc2626 0%, #2563eb 50%, #dc2626 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientFlow 6s linear infinite;
+    display: inline; 
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1));
+    will-change: background-position;
+}
+@keyframes gradientFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+#imagePreviewModal {
+    z-index: 10001 !important; /* Πάνω από όλα τα άλλα στοιχεία */
+}
+
+.image-preview-close {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10004;
+    width: 3.25rem;
+    height: 3.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #dc2626;
+    color: #ffffff;
+    border: 3px solid #ffffff;
+    box-shadow: 0 12px 32px rgba(220, 38, 38, 0.55);
+    font-size: 1.8rem;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.image-preview-close:hover {
+    background: #b91c1c;
+    transform: scale(1.06);
+}
+.image-preview-toolbar {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10003;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem;
+    border-radius: 9999px;
+    background: rgba(15, 23, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+}
+.image-preview-toolbar button {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 800;
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.image-preview-toolbar button:hover {
+    background: #fee2e2;
+    transform: translateY(-1px);
+}
+#imagePreviewZoomLabel {
+    min-width: 3.4rem;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+}
+.image-preview-viewport {
+    width: 100vw;
+    height: 100dvh;
+    overflow: auto;
+    padding: 5.5rem 1rem 2rem;
+    display: block;
+    text-align: center;
+    overscroll-behavior: contain;
+    touch-action: pan-x pan-y;
+}
+.image-preview-viewport.is-zoomed {
+    cursor: grab;
+    touch-action: none;
+}
+.image-preview-viewport.is-dragging {
+    cursor: grabbing;
+}
+.image-preview-viewport.is-dragging,
+.image-preview-viewport.is-dragging * {
+    user-select: none;
+}
+.image-preview-img {
+    width: auto;
+    height: auto;
+    max-width: min(94vw, 1100px);
+    max-height: 86dvh;
+    border-radius: 0.75rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    cursor: zoom-in;
+    display: block;
+    margin: 0 auto;
+    transition: width 0.15s ease, max-height 0.15s ease;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+.image-preview-viewport.is-zoomed .image-preview-img {
+    cursor: inherit;
+}
+
+@media (max-width: 640px) {
+    .image-preview-close {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 3rem;
+        height: 3rem;
+    }
+    .image-preview-toolbar {
+        left: 0.75rem;
+        right: 4.25rem;
+        transform: none;
+        justify-content: center;
+    }
+    .image-preview-viewport {
+        padding-top: 5rem;
+    }
+}
+
+
+/* --- 4. UI ELEMENTS (CARDS, MODALS, SCROLL) --- */
+#offers-grid { position: relative; z-index: 1; }   
+.bento-item { display: flex; flex-direction: column; height: auto; min-height: 420px; transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); }
+.bento-item.min-h-\[300px\], .bento-item.min-h-\[350px\] { min-height: 350px !important; }
+.bento-item:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -5px rgba(15, 43, 92, 0.15); z-index: 10; }
+.shrink-0 { flex-shrink: 0 !important; }   
+
+.modal-backdrop { z-index: 9999 !important; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); }
+.max-h-\[90vh\] { max-height: 85vh; max-height: 85dvh; }
+
+.custom-scroll::-webkit-scrollbar { width: 8px; }
+.custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+.reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.5, 0, 0, 1); will-change: opacity, transform; }
+.reveal.active { opacity: 1; transform: translateY(0); }
+
+/* --- 5. TOAST NOTIFICATIONS --- */
+#toast-container { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 400px; }
+.toast { background: rgba(251, 255, 255, 0.95); backdrop-filter: blur(10px); color: rgb(24, 151, 7); padding: 12px 24px; border-radius: 50px; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 600; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); will-change: transform, opacity; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* --- 6. ROAD ANIMATION (CARS) --- */
+.road-scene { position: absolute; left: 0; width: 100%; height: 100px; background-color: #0e1821; border-top: 4px solid #95a5a6; border-bottom: 4px solid #95a5a6; overflow: hidden; pointer-events: none; z-index: 0; box-shadow: 0 10px 20px rgba(0,0,0,0.5); top: 220px; bottom: auto; }
+.road-scene:before { content: ''; position: absolute; top: 50%; width: 100%; height: 4px; background: linear-gradient(to right, rgba(255,255,255,0.6) 50%, transparent 50%); background-size: 80px 100%; transform: translateY(-50%); }
+
+@media (min-width: 768px) {
+    .road-scene { height: 160px; top: 40%; bottom: auto; transform: translateY(-50%); border-top-width: 6px; border-bottom-width: 6px; }
+    .road-scene:before { height: 6px; background-size: 100px 100%; }
+}
+
+.miss-offer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Arial Black', sans-serif; font-size: 20px; color: #fff; text-align: center; background: #a30e0e; padding: 8px 15px; border-radius: 8px; border: 2px solid white; box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); z-index: 5; white-space: nowrap; animation: textPulse 8s linear infinite; opacity: 0; }
+@media (min-width: 768px) { .miss-offer-text { font-size: 20px; padding: 10px 25px; } }
+
+.chase-group { position: absolute; bottom: -1px; left: 0; display: flex; align-items: flex-end; gap: 10px; transform: translateX(-120vw); animation: speedChase 8s linear infinite; will-change: transform; }
+.police-car-wrapper { position: relative; font-size: 60px; z-index: 2; transform: scaleX(-1); animation: carBounceFlipped 0.2s infinite alternate; margin-bottom: -10px; will-change: transform; }
+@media (min-width: 768px) { .police-car-wrapper { font-size: 90px; } }
+
+.civilian-car-wrapper { position: relative; z-index: 2; width: 60px; height: 35px; animation: carBounceFlipped 0.2s infinite alternate; margin-left: 150px; margin-bottom: 30px; will-change: transform; }
+@media (min-width: 768px) { .civilian-car-wrapper { width: 90px; height: 50px; } }
+
+.car-container { position: absolute; width: 300px; height: 160px; bottom: 0; left: 0; transform: scale(0.2); transform-origin: bottom left; animation: carBounce 0.4s infinite alternate ease-in-out; will-change: transform; }
+@media (min-width: 768px) { .car-container { transform: scale(0.3); } }
+
+.car-top { position: absolute; top: 0; left: 55px; width: 170px; height: 80px; background-color: black; border-radius: 40px 40px 0 0; z-index: 1; display: flex; justify-content: center; align-items: flex-end; gap: 12px; padding-bottom: 5px; }
+.window { width: 60px; height: 50px; background-color: white; }
+.window.front { border-radius: 20px 0 0 0; }
+.window.back { border-radius: 0 20px 0 0; }
+.car-body { position: absolute; top: 65px; left: 0; width: 290px; height: 90px; background-color: black; border-radius: 60px 20px 20px 20px; z-index: 2; }
+.wheel { position: absolute; bottom: -15px; width: 70px; height: 70px; background-color: black; border-radius: 50%; z-index: 3; border: 6px solid white; display: flex; justify-content: center; align-items: center; animation: spinWheel 0.6s linear infinite; }
+.wheel::before { content: ''; position: absolute; width: 60px; height: 6px; background-color: white; border-radius: 3px; }
+.wheel span { position: absolute; width: 6px; height: 60px; background-color: white; border-radius: 3px; }
+.wheel::after { content: ''; position: absolute; width: 24px; height: 24px; background-color: white; border-radius: 50%; z-index: 4; }
+.wheel.left { left: 40px; }
+.wheel.right { right: 45px; }
+
+.siren { position: absolute; top: 25%; width: 15%; height: 10%; border-radius: 5px; z-index: 3; opacity: 0.8; }
+.siren.blue { left: 25%; background-color: #00f; box-shadow: 0 0 10px #00f; animation: flashLight 0.2s infinite alternate; }
+.siren.red { left: 45%; background-color: #f00; box-shadow: 0 0 10px #f00; animation: flashLight 0.2s infinite alternate-reverse; }
+
+@keyframes speedChase { 0% { transform: translateX(-120vw); } 30%, 100% { transform: translateX(150vw); } }
+@keyframes textPulse { 0%, 30% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } 35% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); } 40% { transform: translate(-50%, -50%) scale(1); } 45% { transform: translate(-50%, -50%) scale(1.1); } 50% { transform: translate(-50%, -50%) scale(1); } 55% { transform: translate(-50%, -50%) scale(1.1); } 60% { transform: translate(-50%, -50%) scale(1); } 65% { transform: translate(-50%, -50%) scale(1.1); } 70% { transform: translate(-50%, -50%) scale(1); } 75% { transform: translate(-50%, -50%) scale(1.1); } 80% { transform: translate(-50%, -50%) scale(1); } 90% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 95%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } }
+@keyframes flashLight { 0% { opacity: 0.3; transform: scale(1); } 100% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 20px currentColor; } }
+@keyframes carBounceFlipped { from { transform: scaleX(-1) translateY(0); } to { transform: scaleX(-1) translateY(-2px); } }
+@keyframes spinWheel { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes carBounce { from { transform: scale(0.2) translateY(0); } to { transform: scale(0.2) translateY(-10px); } }
+@media (min-width: 768px) {
+    @keyframes carBounce { from { transform: scale(0.3) translateY(0); } to { transform: scale(0.3) translateY(-10px); } }
+}
+
+/* --- 7. ANIMATION: ΚΑΡΔΙΑ/EKG (ΥΓΕΙΑ) --- */
+.ekg-line { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: drawLine 3s linear infinite; }
+@keyframes drawLine { 0% { stroke-dashoffset: 1000; } 100% { stroke-dashoffset: 0; } }
+@keyframes heartBeat { 0% { transform: scale(1); } 14% { transform: scale(1.3); } 28% { transform: scale(1); } 42% { transform: scale(1.3); } 70% { transform: scale(1); } }
+.health-card-bg { background-color: #ffffff; background-image: radial-gradient(#0ea5e9 0.5px, #ffffff 0.5px); background-size: 10px 10px; }
+.pulse-line { position: absolute; bottom: 20%; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, transparent 0%, #0ea5e9 20%, #0ea5e9 80%, transparent 100%); opacity: 0.3; }
+.pulse-blip { position: absolute; bottom: 20%; left: -10%; width: 6px; height: 6px; background-color: #0ea5e9; border-radius: 50%; box-shadow: 0 0 10px #0ea5e9, 0 0 20px #0ea5e9; animation: pulseMove 4s linear infinite; }
+@keyframes pulseMove { 0% { left: -10%; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { left: 110%; opacity: 0; } }
+@keyframes moveLine { to { stroke-dashoffset: 0; } }
+.animate-ekg-line { stroke-dasharray: 1000; stroke-dashoffset: 1000; animation: moveLine 4s linear infinite; }
+
+/* --- 8. WIDGET STYLE (ΚΕΝΤΡΙΚΟ ΚΟΥΜΠΙ & ΦΟΥΣΚΑ) --- */
+@keyframes float-character { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+.character-float { animation: float-character 4s ease-in-out infinite; filter: drop-shadow(0 15px 15px rgba(0,0,0,0.2)); }
+@keyframes bubble-pop { 0% { opacity: 0; transform: scale(0.3) translateY(40px); } 80% { transform: scale(1.05); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+.bubble-appear { animation: bubble-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s backwards; transform-origin: bottom center; }
+
+.bubble-tail::before { content: ''; position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); border-width: 12px 12px 0 12px; border-style: solid; border-color: #f1f5f9 transparent transparent transparent; }
+.bubble-tail::after { content: ''; position: absolute; bottom: -9px; left: 50%; transform: translateX(-50%); border-width: 10px 10px 0 10px; border-style: solid; border-color: #ffffff transparent transparent transparent; }
+
+@keyframes policeBeacon { 0%, 100% { color: #2563eb; text-shadow: 0 0 12px rgba(37, 99, 235, 0.9); transform: scale(1); } 50% { color: #dc2626; text-shadow: 0 0 18px rgba(220, 38, 38, 0.9); transform: scale(1.15); } }
+
+.options-wrapper { transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: scale(0.8); pointer-events: none; opacity: 0; }
+.group:hover .options-wrapper { opacity: 1; transform: scale(1); pointer-events: auto; }
+
+@media (max-width: 767px) {
+    
+    .bubble-tail::before, .bubble-tail::after { bottom: auto !important; top: -12px !important; transform: translateX(-50%) rotate(180deg) !important; border-width: 0 12px 12px 12px !important; border-color: transparent transparent #ffffff transparent !important; }
+    #phoneBubble, #viberBubble { margin-bottom: 0 !important; margin-top: 1rem !important; }
+}
+
+/* --- 9. PROCESS HEADER STEP BADGE --- */
+[data-process-header-step] {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    [data-process-header-step] {
+        display: inline-flex !important;
+    }
+}
+
+/* --- 10. MOBILE CLEANUP --- */
+@media (max-width: 640px) {
+    .bento-item {
+        min-height: auto !important;
+    }
+
+    .bento-item:hover {
+        transform: none !important;
+    }
+
+    .modal-backdrop {
+        backdrop-filter: none;
+    }
+}
+
+/* --- 11. REDUCED MOTION --- */
+@media (prefers-reduced-motion: reduce) {
+    .full-red-blue-gradient,
+    .reveal,
+    .character-float,
+    .bubble-appear,
+    .ekg-line,
+    .animate-ekg-line,
+    .pulse-blip,
+    .road-scene * {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+/* buttons inside dikaiologitika */
+#vodaChoiceOptions button,
+#novaChoiceOptions button {
+  min-height: 130px;
+  padding: 28px 18px;
+  font-size: 18px;
+  font-weight: 900;
+  border-radius: 24px;
+}
+
+@media (max-width: 640px) {
+  #vodaChoiceModal,
+  #novaChoiceModal {
+    padding: 12px !important;
+    align-items: center !important;
+  }
+
+  #vodaChoiceModal > div,
+  #novaChoiceModal > div {
+    max-height: 92vh !important;
+    overflow-y: auto !important;
+  }
+
+  #vodaChoiceOptions,
+  #novaChoiceOptions {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  #vodaChoiceOptions button,
+  #novaChoiceOptions button {
+    min-height: 72px !important;
+    height: auto !important;
+    padding: 14px 16px !important;
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+    border-radius: 18px !important;
+  }
+}

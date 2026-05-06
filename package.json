@@ -1,0 +1,17 @@
+{
+  "name": "synetairismos-astynomikon-offers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static GitHub Pages site for Synetelas offers.",
+  "scripts": {
+    "build": "tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.css --minify",
+    "dev": "tailwindcss -i ./assets/css/tailwind.input.css -o ./assets/css/tailwind.css --watch",
+    "check": "npm run build && html-validate index.html && node --check ./assets/js/offers-data.js && node --check ./assets/js/offers-renderer.js && node --check ./assets/js/wizard-ui.js && node --check ./assets/js/main.js && node ./scripts/check-repo-clean.mjs && node ./scripts/check-static-assets.mjs",
+    "prebuild": "node ./scripts/write-site-version.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.4",
+    "html-validate": "^10.15.0",
+    "tailwindcss": "^4.2.4"
+  }
+}
