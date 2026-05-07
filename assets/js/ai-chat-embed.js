@@ -1,128 +1,78 @@
 (function () {
-  const DEFAULT_CHAT_APP_URL = "https://chat-bot-flame-six.vercel.app/";
-
   const currentScript = document.currentScript;
-  const scriptUrl = currentScript
-    ? new URL(currentScript.src)
-    : new URL("/assets/js/ai-chat-embed.js", window.location.href);
-
-  const chatUrl = new URL(
-    currentScript?.dataset.chatUrl || DEFAULT_CHAT_APP_URL,
-    scriptUrl.origin
-  );
-
+  const scriptUrl = currentScript ? new URL(currentScript.src) : new URL("/embed.js", window.location.href);
+  const chatUrl = new URL(currentScript?.dataset.chatUrl || "/", scriptUrl.origin);
   const iframeTitle = currentScript?.dataset.title || "Βοηθός Synetelas";
 
-  function initSynetelasChat() {
-    if (document.getElementById("synetelas-ai-chat")) return;
+  const frame = document.createElement("iframe");
+  frame.src = chatUrl.href;
+  frame.title = iframeTitle;
+  frame.loading = "lazy";
+  frame.allow = "microphone";
+  frame.style.cssText = [
+    "position:fixed",
+    "right:max(16px,env(safe-area-inset-right,0px))",
+    "bottom:max(16px,env(safe-area-inset-bottom,0px))",
+    "width:min(460px,calc(100vw - 24px))",
+    "height:min(780px,calc(100dvh - 24px))",
+    "border:0",
+    "border-radius:22px",
+    "z-index:2147483647",
+    "box-shadow:0 24px 70px rgba(15,23,42,.22)",
+    "background:transparent"
+  ].join(";");
 
-    const widget = document.createElement("div");
-    widget.id = "synetelas-ai-chat";
+  const launcher = document.createElement("button");
+  launcher.type = "button";
+  launcher.textContent = "Βοηθός Synetelas";
+  launcher.setAttribute("aria-label", "Άνοιγμα συνομιλίας");
+  launcher.style.cssText = [
+    "position:fixed",
+    "right:max(16px,env(safe-area-inset-right,0px))",
+    "bottom:max(16px,env(safe-area-inset-bottom,0px))",
+    "z-index:2147483647",
+    "display:none",
+    "border:0",
+    "border-radius:999px",
+    "padding:14px 18px",
+    "background:#12315f",
+    "color:#fff",
+    "font:800 14px system-ui,-apple-system,Segoe UI,sans-serif",
+    "box-shadow:0 18px 42px rgba(15,43,92,.32)",
+    "cursor:pointer"
+  ].join(";");
 
-    widget.innerHTML = `
-      <button class="synetelas-ai-chat-button" type="button" aria-label="Άνοιγμα AI βοηθού">
-        <span class="synetelas-ai-chat-bubble">💬</span>
-        <span class="synetelas-ai-chat-label">
-          <strong>AI Βοηθός</strong>
-          <small>Ρώτησέ με εδώ</small>
-        </span>
-      </button>
-
-      <div class="synetelas-ai-chat-backdrop" hidden></div>
-
-      <section class="synetelas-ai-chat-panel" aria-hidden="true" aria-label="${iframeTitle}">
-        <header class="synetelas-ai-chat-header">
-          <div>
-            <strong>${iframeTitle}</strong>
-            <span>Τηλεφωνία, TV, Internet & δικαιολογητικά</span>
-          </div>
-
-          <div class="synetelas-ai-chat-actions">
-            <button class="synetelas-ai-chat-refresh" type="button" aria-label="Ανανέωση chat">↻</button>
-            <button class="synetelas-ai-chat-close" type="button" aria-label="Κλείσιμο chat">×</button>
-          </div>
-        </header>
-
-        <iframe
-          class="synetelas-ai-chat-frame"
-          title="${iframeTitle}"
-          src="about:blank"
-          data-src="${chatUrl.href}"
-          loading="lazy"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allow="microphone; clipboard-write"
-        ></iframe>
-      </section>
-    `;
-
-    document.body.appendChild(widget);
-
-    const openButton = widget.querySelector(".synetelas-ai-chat-button");
-    const panel = widget.querySelector(".synetelas-ai-chat-panel");
-    const backdrop = widget.querySelector(".synetelas-ai-chat-backdrop");
-    const closeButton = widget.querySelector(".synetelas-ai-chat-close");
-    const refreshButton = widget.querySelector(".synetelas-ai-chat-refresh");
-    const iframe = widget.querySelector(".synetelas-ai-chat-frame");
-
-    let iframeLoaded = false;
-
-    function openChat() {
-      panel.classList.add("is-open");
-      panel.classList.remove("is-minimized");
-      panel.setAttribute("aria-hidden", "false");
-      backdrop.hidden = false;
-      document.body.classList.add("synetelas-ai-chat-open");
-
-      if (!iframeLoaded) {
-        iframe.src = iframe.dataset.src;
-        iframeLoaded = true;
-      }
-    }
-
-    function closeChat() {
-      panel.classList.remove("is-open");
-      panel.classList.remove("is-minimized");
-      panel.setAttribute("aria-hidden", "true");
-      backdrop.hidden = true;
-      document.body.classList.remove("synetelas-ai-chat-open");
-    }
-
-    function minimizeChat() {
-      panel.classList.remove("is-open");
-      panel.classList.add("is-minimized");
-      panel.setAttribute("aria-hidden", "true");
-      backdrop.hidden = true;
-      document.body.classList.remove("synetelas-ai-chat-open");
-    }
-
-    function refreshChat() {
-      iframe.src = `${iframe.dataset.src}${iframe.dataset.src.includes("?") ? "&" : "?"}t=${Date.now()}`;
-      iframeLoaded = true;
-    }
-
-    openButton.addEventListener("click", openChat);
-    closeButton.addEventListener("click", closeChat);
-    refreshButton.addEventListener("click", refreshChat);
-    backdrop.addEventListener("click", closeChat);
-
-    window.addEventListener("message", (event) => {
-      if (event.source !== iframe.contentWindow) return;
-
-      if (event.data === "minimizeChat") minimizeChat();
-      if (event.data === "restoreChat") openChat();
-      if (event.data === "closeChat") closeChat();
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && panel.classList.contains("is-open")) {
-        closeChat();
-      }
-    });
+  function restoreFrame() {
+    frame.style.display = "block";
+    frame.style.width = "min(460px,calc(100vw - 24px))";
+    frame.style.height = "min(780px,calc(100dvh - 24px))";
+    frame.style.borderRadius = window.innerWidth < 768 ? "0" : "22px";
+    launcher.style.display = "none";
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initSynetelasChat);
-  } else {
-    initSynetelasChat();
+  function minimizeFrame() {
+    frame.style.width = "280px";
+    frame.style.height = "86px";
+    frame.style.borderRadius = "999px";
   }
+
+  function closeFrame() {
+    frame.style.display = "none";
+    launcher.style.display = "block";
+  }
+
+  window.addEventListener("message", (event) => {
+    if (event.source !== frame.contentWindow) return;
+    if (event.data === "minimizeChat") minimizeFrame();
+    if (event.data === "restoreChat") restoreFrame();
+    if (event.data === "closeChat") closeFrame();
+  });
+
+  launcher.addEventListener("click", restoreFrame);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.body.appendChild(frame);
+    document.body.appendChild(launcher);
+    restoreFrame();
+  });
 })();
