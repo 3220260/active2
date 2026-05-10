@@ -2245,36 +2245,95 @@
 
 
 
+<!-- Chat Bubble Widget for synetairismos-astynomikon.gr -->
+<!-- Paste this snippet just before the closing </body> tag of your index.html -->
+
+<button id="chat-toggle" class="syn-chat-bubble" aria-label="Άνοιγμα συνομιλίας">💬</button>
+
 <iframe
-  src="https://chat-prtw4us6f-built-to-fail-inc.vercel.app"
-  style="
-    position: fixed;
-    right: 16px;
-    bottom: 16px;
-    width: 420px;
-    height: 720px;
-    max-width: calc(100vw - 32px);
-    max-height: calc(100vh - 32px);
-    border: 0;
-    border-radius: 18px;
-    box-shadow: 0 18px 60px rgba(0,0,0,.22);
-    z-index: 999999;
-    background: white;
-  "
-></iframe>
+  id="synetelas-chat"
+  data-src="https://chat-bot-flame-six.vercel.app"
+  class="syn-chat-iframe"
+  title="Συνομιλία με τον Βοηθό"
+  allow="clipboard-write; microphone; camera">
+</iframe>
 
 <style>
-@media (max-width: 767px) {
-  iframe {
-    inset: 0 !important;
-    width: 100vw !important;
-    height: 100dvh !important;
-    max-width: none !important;
-    max-height: none !important;
-    border-radius: 0 !important;
+  /* --- Styling --- */
+  .syn-chat-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #d40000;          /* primary red of the site */
+    color: #fff;
+    font-size: 32px;
+    line-height: 64px;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    z-index: 99998;
   }
-}
+
+  .syn-chat-iframe {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 380px;
+    height: 550px;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    display: none;               /* hidden until toggled */
+    z-index: 99999;
+  }
+
+  /* Mobile full‑screen fallback */
+  @media (max-width: 640px) {
+    .syn-chat-iframe {
+      width: 100%;
+      height: 100%;
+      bottom: 0;
+      right: 0;
+      border-radius: 0;
+    }
+  }
 </style>
+
+<script>
+  (function () {
+    const btn  = document.getElementById('chat-toggle');
+    const chat = document.getElementById('synetelas-chat');
+    let loaded = false;   // iframe not yet loaded
+
+    function loadIframe() {
+      if (loaded) return;           // already done
+
+      // If cookie‑banner logic (loadDeferredIframes) hasn't run yet,
+      // this will insert the src attribute on first open.
+      if (!chat.src) {
+        const src = chat.dataset.src;
+        if (src) chat.src = src;
+      }
+      loaded = true;
+    }
+
+    btn.addEventListener('click', () => {
+      const isOpen = chat.style.display !== 'none';
+      if (isOpen) {
+        chat.style.display = 'none';
+      } else {
+        loadIframe();              // lazy‑load the chatbot
+        chat.style.display = 'block';
+      }
+    });
+
+    // OPTIONAL: start closed (explicit for clarity)
+    chat.style.display = 'none';
+  })();
+</script>
 
 
 
