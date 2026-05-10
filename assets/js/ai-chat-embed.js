@@ -1,103 +1,176 @@
 (function () {
-  const currentScript = document.currentScript;
-  const scriptUrl = currentScript ? new URL(currentScript.src) : new URL("/embed.js", window.location.href);
-  const chatUrl = new URL(currentScript?.dataset.chatUrl || "/", scriptUrl.origin);
-  const iframeTitle = currentScript?.dataset.title || "Βοηθός Synetelas";
+  "use strict";
 
-  const host = document.createElement("div");
-  host.style.cssText = [
-    "position:fixed",
-    "right:max(16px,env(safe-area-inset-right,0px))",
-    "bottom:max(16px,env(safe-area-inset-bottom,0px))",
-    "width:min(460px,calc(100vw - 24px))",
-    "height:min(780px,calc(100dvh - 24px))",
-    "z-index:2147483647"
-  ].join(";");
+  var ROOT_ID = "synetelas-ai-chat";
+  var DEFAULT_CHAT_URL = "https://chat-bot-flame-six.vercel.app/";
+  var DEFAULT_TITLE = "Βοηθός Π.Κ.Σ.Α.Α.";
+  var DEFAULT_SUBTITLE = "Ρώτησε για προσφορές & διαδικασίες";
 
-  const frame = document.createElement("iframe");
-  frame.src = chatUrl.href;
-  frame.title = iframeTitle;
-  frame.loading = "lazy";
-  frame.allow = "microphone";
-  frame.style.cssText = [
-    "position:fixed",
-    "right:max(16px,env(safe-area-inset-right,0px))",
-    "bottom:max(16px,env(safe-area-inset-bottom,0px))",
-    "width:min(460px,calc(100vw - 24px))",
-    "height:min(780px,calc(100dvh - 24px))",
-    "position:absolute",
-    "inset:0",
-    "width:100%",
-    "height:100%",
-    "border:0",
-    "border-radius:22px",
-    "z-index:2147483647",
-    "box-shadow:0 24px 70px rgba(15,23,42,.22)",
-    "background:transparent"
-  ].join(";");
+  function onReady(callback) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", callback, { once: true });
+      return;
+    }
 
-  const closeBtn = document.createElement("button");
-  closeBtn.type = "button";
-  closeBtn.setAttribute("aria-label", "Κλείσιμο συνομιλίας");
-  closeBtn.title = "Κλείσιμο";
-  closeBtn.textContent = "×";
-  closeBtn.style.cssText = [
-    "position:absolute",
-    "top:-12px",
-    "right:-12px",
-    "width:34px",
-    "height:34px",
-    "border:0",
-    "border-radius:999px",
-    "background:#0f172a",
-    "color:#fff",
-    "font:700 20px/1 system-ui,-apple-system,Segoe UI,sans-serif",
-    "display:grid",
-    "place-items:center",
-    "cursor:pointer",
-    "box-shadow:0 10px 24px rgba(15,23,42,.25)"
-  ].join(";");
-
-  const launcher = document.createElement("button");
-  launcher.type = "button";
-  launcher.textContent = "Βοηθός Synetelas";
-  ].join(";");
-
-  function restoreFrame() {
-    frame.style.display = "block";
-    frame.style.width = "min(460px,calc(100vw - 24px))";
-    frame.style.height = "min(780px,calc(100dvh - 24px))";
-    host.style.display = "block";
-    host.style.width = "min(460px,calc(100vw - 24px))";
-    host.style.height = "min(780px,calc(100dvh - 24px))";
-    frame.style.borderRadius = window.innerWidth < 768 ? "0" : "22px";
-    launcher.style.display = "none";
+    callback();
   }
 
-  function minimizeFrame() {
-    frame.style.width = "280px";
-    frame.style.height = "86px";
-    host.style.width = "280px";
-    host.style.height = "86px";
-    frame.style.borderRadius = "999px";
+  function getConfig() {
+    var script = document.currentScript || document.querySelector('script[src*="ai-chat-embed.js"]');
+
+    return {
+      chatUrl: script && script.dataset.chatUrl ? script.dataset.chatUrl : DEFAULT_CHAT_URL,
+      title: script && script.dataset.title ? script.dataset.title : DEFAULT_TITLE,
+      subtitle: script && script.dataset.subtitle ? script.dataset.subtitle : DEFAULT_SUBTITLE,
+      openOnLoad: script && script.dataset.openOnLoad === "true"
+    };
   }
 
-  function closeFrame() {
-    frame.style.display = "none";
-    host.style.display = "none";
-    launcher.style.display = "block";
+  function safeUrl(value) {
+    try {
+      return new URL(value, window.location.href).href;
+    } catch (error) {
+      return DEFAULT_CHAT_URL;
+    }
   }
 
-  });
+  function createButton(config) {
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "synetelas-ai-chat-button";
+    button.setAttribute("aria-controls", "synetelas-ai-chat-panel");
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-label", "Άνοιγμα συνομιλίας με τον βοηθό");
 
-  launcher.addEventListener("click", restoreFrame);
-  closeBtn.addEventListener("click", closeFrame);
+    button.innerHTML =
+      '<span class="synetelas-ai-chat-bubble" aria-hidden="true">💬</span>' +
+      '<span class="synetelas-ai-chat-label">' +
+      "<strong>" + config.title + "</strong>" +
+      "<small>" + config.subtitle + "</small>" +
+      "</span>";
 
-  document.addEventListener("DOMContentLoaded", () => {
-    document.body.appendChild(frame);
-    host.appendChild(frame);
-    host.appendChild(closeBtn);
-    document.body.appendChild(host);
-    document.body.appendChild(launcher);
-    restoreFrame();
-  });
+    return button;
+  }
+
+  function createPanel(config) {
+    var panel = document.createElement("section");
+    panel.id = "synetelas-ai-chat-panel";
+    panel.className = "synetelas-ai-chat-panel";
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", config.title);
+    panel.setAttribute("aria-modal", "false");
+
+    var header = document.createElement("div");
+    header.className = "synetelas-ai-chat-header";
+    header.innerHTML =
+      "<div>" +
+      "<strong>" + config.title + "</strong>" +
+      "<span>" + config.subtitle + "</span>" +
+      "</div>";
+
+    var actions = document.createElement("div");
+    actions.className = "synetelas-ai-chat-actions";
+
+    var refresh = document.createElement("button");
+    refresh.type = "button";
+    refresh.className = "synetelas-ai-chat-refresh";
+    refresh.setAttribute("aria-label", "Ανανέωση συνομιλίας");
+    refresh.title = "Ανανέωση";
+    refresh.textContent = "↻";
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "synetelas-ai-chat-close";
+    close.setAttribute("aria-label", "Κλείσιμο συνομιλίας");
+    close.title = "Κλείσιμο";
+    close.textContent = "×";
+
+    actions.appendChild(refresh);
+    actions.appendChild(close);
+    header.appendChild(actions);
+
+    var iframe = document.createElement("iframe");
+    iframe.className = "synetelas-ai-chat-frame";
+    iframe.title = config.title;
+    iframe.src = safeUrl(config.chatUrl);
+    iframe.loading = "lazy";
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+    iframe.allow = "clipboard-write; microphone";
+
+    panel.appendChild(header);
+    panel.appendChild(iframe);
+
+    return {
+      panel: panel,
+      iframe: iframe,
+      refresh: refresh,
+      close: close
+    };
+  }
+
+  function mountChat() {
+    if (document.getElementById(ROOT_ID)) {
+      return;
+    }
+
+    var config = getConfig();
+
+    var root = document.createElement("div");
+    root.id = ROOT_ID;
+
+    var button = createButton(config);
+    var panelBundle = createPanel(config);
+    var panel = panelBundle.panel;
+    var iframe = panelBundle.iframe;
+    var refresh = panelBundle.refresh;
+    var close = panelBundle.close;
+
+    function openChat() {
+      panel.classList.add("is-open");
+      button.setAttribute("aria-expanded", "true");
+      document.body.classList.add("synetelas-ai-chat-open");
+      window.setTimeout(function () {
+        try {
+          iframe.focus();
+        } catch (error) {}
+      }, 50);
+    }
+
+    function closeChat() {
+      panel.classList.remove("is-open");
+      button.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("synetelas-ai-chat-open");
+      button.focus();
+    }
+
+    function toggleChat() {
+      if (panel.classList.contains("is-open")) {
+        closeChat();
+      } else {
+        openChat();
+      }
+    }
+
+    button.addEventListener("click", toggleChat);
+    close.addEventListener("click", closeChat);
+    refresh.addEventListener("click", function () {
+      iframe.src = iframe.src;
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && panel.classList.contains("is-open")) {
+        closeChat();
+      }
+    });
+
+    root.appendChild(panel);
+    root.appendChild(button);
+    document.body.appendChild(root);
+
+    if (config.openOnLoad) {
+      openChat();
+    }
+  }
+
+  onReady(mountChat);
+})();
