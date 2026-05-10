@@ -2245,17 +2245,40 @@
 
 
 
+<iframe
+  src="https://chat-bot-flame-six.vercel.app"
+  style="
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 420px;
+    height: 720px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 32px);
+    border: 0;
+    border-radius: 18px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.22);
+    z-index: 999999;
+    background: white;
+  "
+></iframe>
+
+<style>
+@media (max-width: 767px) {
+  iframe {
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
+}
+</style>
 
 
 
 
 
-<script
-  defer
-  src="assets/js/ai-chat-embed.js?v=20260511-1"
-  data-chat-url="https://chat-bot-flame-six.vercel.app/"
-  data-title="Βοηθός Π.Κ.Σ.Α.Α."
-  data-subtitle="Ρώτησε για προσφορές & διαδικασίες"
-></script>
 </body>
 </html>
